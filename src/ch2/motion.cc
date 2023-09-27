@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
     if (ui.Init() == false) {
         return -1;
     }
-
+    //Step1 deg to rad; linear_v to v_body
     double angular_velocity_rad = FLAGS_angular_velocity * sad::math::kDEG2RAD;  // 弧度制角速度
     SE3 pose;                                                                    // TWB表示的位姿
     Vec3d omega(0, 0, angular_velocity_rad);                                     // 角速度矢量
@@ -37,19 +37,25 @@ int main(int argc, char** argv) {
 
     while (ui.ShouldQuit() == false) {
         // 更新自身位置
+        // Step2 compute world velovity v_w = R_wb * v_b
         Vec3d v_world = pose.so3() * v_body;
+        // 世界系加速度对平移的影响
         pose.translation() += v_world * dt;
 
         // 更新自身旋转
+        //Step3 更新车辆状态
         if (FLAGS_use_quaternion) {
+            //四元数表示 eq2.78
             Quatd q = pose.unit_quaternion() * Quatd(1, 0.5 * omega[0] * dt, 0.5 * omega[1] * dt, 0.5 * omega[2] * dt);
             q.normalize();
             pose.so3() = SO3(q);
         } else {
+            //eq2.55
             pose.so3() = pose.so3() * SO3::exp(omega * dt);
         }
 
         LOG(INFO) << "pose: " << pose.translation().transpose();
+        //Step4 计算好的姿态UI显示
         ui.UpdateNavState(sad::NavStated(0, pose, v_world));
 
         usleep(dt * 1e6);
