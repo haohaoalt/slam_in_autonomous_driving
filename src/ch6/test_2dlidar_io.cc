@@ -20,7 +20,8 @@ int main(int argc, char** argv) {
 
     sad::RosbagIO rosbag_io(fLS::FLAGS_bag_path);
     rosbag_io
-        .AddScan2DHandle("/pavo_scan_bottom",
+        // .AddScan2DHandle("/pavo_scan_bottom",
+        .AddScan2DHandle("/scan",
                          [](Scan2d::Ptr scan) {
                              cv::Mat image;
                              sad::Visualize2DScan(scan, SE2(), image, Vec3b(255, 0, 0));

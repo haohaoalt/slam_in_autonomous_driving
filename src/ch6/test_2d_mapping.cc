@@ -31,7 +31,9 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    rosbag_io.AddScan2DHandle("/pavo_scan_bottom", [&](Scan2d::Ptr scan) { return mapping.ProcessScan(scan); }).Go();
+    // rosbag_io.AddScan2DHandle("/pavo_scan_bottom", [&](Scan2d::Ptr scan) { return mapping.ProcessScan(scan); }).Go();
+    rosbag_io.AddScan2DHandle("/scan", [&](Scan2d::Ptr scan) { return mapping.ProcessScan(scan); }).Go();
+
     std::cout << "Save global map" << std::endl;
     cv::imwrite("./data/ch6/global_map.png", mapping.ShowGlobalMap(2000));
     return 0;
